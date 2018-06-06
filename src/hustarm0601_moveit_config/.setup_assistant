@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: hustdoublearm
+    relative_path: robots/hustdoublearm.urdf
+  SRDF:
+    relative_path: config/hustdoublearm.srdf
+  CONFIG:
+    author_name: hustac
+    author_email: 4156156514@qq.com
+    generated_timestamp: 1527835461
