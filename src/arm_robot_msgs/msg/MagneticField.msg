@@ -1,0 +1,2 @@
+Header header
+geometry_msgs/Vector3 magnetic_field
