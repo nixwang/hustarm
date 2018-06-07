@@ -1,0 +1,11 @@
+<launch>
+  <arg name="port" default="/dev/ttyUSB1" />
+  <arg name="baud" default="2000000" />
+  <arg name="dummy-port" default="/tmp/ttyDUMMYstm32" />
+  <node pkg="arm_robot_msgs" type="wrap-interceptty.bash" name="interceptty" args="$(arg port) $(arg baud) $(arg dummy-port)" output="screen" />
+  <node pkg="rosserial_server" type="serial_node" name="rosserial_server" output="screen">
+    <param name="port" value=" $(arg dummy-port)" />
+    <param name="baud" value="$(arg baud)" />
+  </node>
+  <node pkg="rosserial_python" type="message_info_service.py" name="rosserial_message_info" output="screen" />
+</launch>
