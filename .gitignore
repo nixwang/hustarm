@@ -27,7 +27,6 @@ src/move_group_interface
 src/gazebo_ros_demos-kinetic-devel.zip  
 src/rob_description
 src/robot_name_moveit_config
-src/rosserial_stm32
 src/hustarm0605                         
 src/solidsinglearm.zip
 src/hustarm20180503                     
