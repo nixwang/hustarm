@@ -1,5 +1,5 @@
 <launch>
-  <arg name="port" default="/dev/ttyUSB1" />
+  <arg name="port" default="/dev/ttyUSB-pl2303" />
   <arg name="baud" default="2000000" />
   <arg name="dummy_port" default="/tmp/ttyDUMMY" />
   <node pkg="arm_robot_msgs" type="wrap-interceptty.bash" name="interceptty" args="$(arg port) $(arg baud) $(arg dummy_port)" output="screen" /> 
