@@ -3,4 +3,4 @@
 	url = git@github.com:bxwllzz/rosserial
 [submodule "src/rosserial_stm32"]
 	path = src/rosserial_stm32
-	url = git@github.com:bxwllzz/rosserial
+	url = git@github.com:bxwllzz/rosserial_stm32
