@@ -1,0 +1,7 @@
+<library path="lib/libarm_robot_msgs_nodelet">
+    <class name="arm_robot_msgs/NodeletOdomPubTF" type="arm_robot_msgs::NodeletOdomPubTF" base_class_type="nodelet::Nodelet">
+        <description>
+            This is my nodelet.
+        </description>
+    </class>
+</library>
