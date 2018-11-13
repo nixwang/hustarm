@@ -8,16 +8,18 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  rospy
-  std_msgs
-  geometry_msgs
-  message_generation
-)
+        roscpp
+        rospy
+        std_msgs
+        geometry_msgs
+        message_generation
+        rosbag
+        )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
-
+find_package(Boost REQUIRED COMPONENTS system)
+find_package(Eigen3 REQUIRED)
+message("Found Eigen3: ${EIGEN3_INCLUDE_DIRS}")
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -50,9 +52,9 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## Generate messages in the 'msg' folder
 add_message_files(
-  FILES
-  Imu.msg
-  MagneticField.msg
+        FILES
+        Imu.msg
+        MagneticField.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -71,9 +73,9 @@ add_message_files(
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
-  DEPENDENCIES
-  std_msgs
-  geometry_msgs
+        DEPENDENCIES
+        std_msgs
+        geometry_msgs
 )
 
 ################################################
@@ -106,10 +108,10 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES arm_robot_msgs
-  CATKIN_DEPENDS roscpp rospy std_msgs geometry_msgs message_runtime
-#  DEPENDS system_lib
+        #  INCLUDE_DIRS include
+        #  LIBRARIES arm_robot_msgs
+        CATKIN_DEPENDS roscpp rospy std_msgs geometry_msgs message_runtime nodelet
+        #  DEPENDS system_lib
 )
 
 ###########
@@ -119,14 +121,16 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
+        include
+        ${catkin_INCLUDE_DIRS}
+        ${EIGEN3_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/arm_robot_msgs.cpp
 # )
+add_library(${PROJECT_NAME}_nodelet src/odom_pub_tf_nodelet.cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -137,21 +141,43 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_msg_bridge src/msg_bridge.cpp)
+add_executable(${PROJECT_NAME}_bag_to_csv src/bag_to_csv.cpp)
+add_executable(${PROJECT_NAME}_diag_imu src/diag_imu.cpp)
+add_executable(${PROJECT_NAME}_joy_ctrl src/joy_controller.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
 ## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
 set_target_properties(${PROJECT_NAME}_msg_bridge PROPERTIES OUTPUT_NAME msg_bridge PREFIX "")
+set_target_properties(${PROJECT_NAME}_bag_to_csv PROPERTIES OUTPUT_NAME bag_to_csv PREFIX "")
+set_target_properties(${PROJECT_NAME}_diag_imu PROPERTIES OUTPUT_NAME diag_imu PREFIX "")
+set_target_properties(${PROJECT_NAME}_joy_ctrl PROPERTIES OUTPUT_NAME joy_ctrl PREFIX "")
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(${PROJECT_NAME}_msg_bridge ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_bag_to_csv ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_diag_imu ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_joy_ctrl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_nodelet ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_msg_bridge
-  ${catkin_LIBRARIES}
-)
+        ${catkin_LIBRARIES}
+        )
+target_link_libraries(${PROJECT_NAME}_bag_to_csv
+        ${catkin_LIBRARIES}
+        )
+target_link_libraries(${PROJECT_NAME}_diag_imu
+        ${catkin_LIBRARIES}
+        )
+target_link_libraries(${PROJECT_NAME}_joy_ctrl
+        ${catkin_LIBRARIES}
+        )
+target_link_libraries(${PROJECT_NAME}_nodelet
+        ${catkin_LIBRARIES}
+        )
 
 #############
 ## Install ##

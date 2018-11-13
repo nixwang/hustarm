@@ -1,12 +1,35 @@
 <launch>
-  <arg name="port" default="/dev/ttyUSB-pl2303" />
-  <arg name="baud" default="2000000" />
-  <arg name="dummy_port" default="/tmp/ttyDUMMY" />
-  <node pkg="arm_robot_msgs" type="wrap-interceptty.bash" name="interceptty" args="$(arg port) $(arg baud) $(arg dummy_port)" output="screen" /> 
-  <node pkg="rosserial_server" type="serial_node" name="rosserial_server" output="screen" >
-    <param name="port" value=" $(arg dummy_port)" />
-    <param name="baud" value="$(arg baud)" />
-  </node>
-  <node pkg="rosserial_python" type="message_info_service.py" name="rosserial_message_info" />
-  <node pkg="arm_robot_msgs" type="msg_bridge" name="msg_bridge" output="screen" />
+    <!-- <arg name="port" default="/dev/ttyUSB-pl2303-1" />
+    <arg name="baud" default="2000000" />
+    <arg name="dummy_port" default="/tmp/ttyDUMMY" />
+    <node pkg="arm_robot_msgs" type="wrap-interceptty.bash" name="interceptty" args="$(arg port) $(arg baud) $(arg dummy_port)" output="screen" respawn="true" />
+    <node pkg="rosserial_server" type="serial_node" name="rosserial_server" output="screen" respawn="true" >
+      <param name="port" value=" $(arg dummy_port)" />
+      <param name="baud" value="$(arg baud)" />
+    </node> -->
+
+    <!--rosserial server (python)-->
+    <param name="/rosserial_embeddedlinux/tcp_port" value="11411"/>
+    <node pkg="rosserial_python" type="serial_node.py" name="serial_node" output="screen" respawn="true">
+        <param name="port" value="tcp"/>
+    </node>
+
+    <!--rosserial server (cpp)-->
+    <node pkg="rosserial_server" type="socket_node" name="rosserial_server" output="screen" respawn="true">
+        <param name="port" value="11412"/>
+    </node>
+    <node pkg="rosserial_python" type="message_info_service.py" name="rosserial_message_info" respawn="true"/>
+
+    <!--imu calibration-->
+    <node pkg="arm_robot_msgs" type="msg_bridge" name="msg_bridge" output="screen" respawn="true">
+        <rosparam command="load" file="$(find arm_robot_msgs)/param/imu_zr300.yaml" ns="/camera"/>
+    </node>
+
+    <!--jot teleop-->
+    <node pkg="joy" type="joy_node" name="turtle_joy" output="screen" respawn="true">
+        <param name="dev" type="string" value="/dev/input/js0" />
+        <param name="autorepeat_rate" type="double" value="10" />
+        <param name="deadzone" type="double" value="0" />
+    </node>
+    <node pkg="arm_robot_msgs" type="joy_ctrl" name="joy_ctrl" output="screen" respawn="true"/>
 </launch>

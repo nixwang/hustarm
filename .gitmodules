@@ -4,3 +4,18 @@
 [submodule "src/rosserial_stm32"]
 	path = src/rosserial_stm32
 	url = git@github.com:bxwllzz/rosserial_stm32
+[submodule "src/iai_kinect2"]
+	path = src/iai_kinect2
+	url = https://github.com/code-iai/iai_kinect2.git
+[submodule "src/imu_utils"]
+	path = src/imu_utils
+	url = https://github.com/gaowenliang/imu_utils
+[submodule "src/code_utils"]
+	path = src/code_utils
+	url = https://github.com/gaowenliang/code_utils
+[submodule "src/VINS-Mono"]
+	path = src/VINS-Mono
+	url = git@github.com:bxwllzz/VINS-Mono.git
+[submodule "src/realsense"]
+	path = src/realsense
+	url = https://github.com/bxwllzz/realsense
