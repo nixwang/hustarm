@@ -59,10 +59,12 @@
     <build_depend>cmake_modules</build_depend>
     <build_depend>rosbag</build_depend>
     <build_depend>nodelet</build_depend>
+    <build_depend>realsense_camera</build_depend>
     <build_export_depend>roscpp</build_export_depend>
     <build_export_depend>rospy</build_export_depend>
     <build_export_depend>std_msgs</build_export_depend>
     <build_export_depend>geometry_msgs</build_export_depend>
+    <build_export_depend>realsense_camera</build_export_depend>
     <exec_depend>roscpp</exec_depend>
     <exec_depend>rospy</exec_depend>
     <exec_depend>std_msgs</exec_depend>
@@ -70,6 +72,7 @@
     <exec_depend>message_runtime</exec_depend>
     <exec_depend>rosbag</exec_depend>
     <exec_depend>nodelet</exec_depend>
+    <exec_depend>realsense_camera</exec_depend>
 
     <!-- The export tag contains other, unspecified, tags -->
     <export>

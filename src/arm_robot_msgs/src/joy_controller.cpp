@@ -59,7 +59,7 @@ public:
 //                    }
                 }
             } else if (axis_value <= -speedup_threshold_) {
-                if (integral_ < 0) {
+                if (integral_ <= 0) {
                     integral_ -= speedup_acceleration_ * dur;
                 } else {
                     integral_ = 0;
@@ -87,6 +87,12 @@ public:
     }
 
 };
+
+constexpr double JoyAxisControl::speedup_threshold_;
+constexpr double JoyAxisControl::speedup_acceleration_;
+constexpr double JoyAxisControl::speedup_deceleration_;
+constexpr double JoyAxisControl::speedup_max;
+constexpr double JoyAxisControl::joy_timeout_;
 
 class JoyStepControl {
 public:
@@ -158,16 +164,16 @@ public:
 
 class TeleopJoy {
 protected:
-    static const int default_axis_pan_x = 1;
-    static const int default_axis_pan_y = 2;
-    static const int default_axis_car_x = 3;
-    static const int default_axis_car_y = 0;
-    static const int default_axis_yaw = 6;
-    static const int default_axis_pitch = 7;
+    static constexpr int default_axis_pan_x = 1;
+    static constexpr int default_axis_pan_y = 2;
+    static constexpr int default_axis_car_x = 3;
+    static constexpr int default_axis_car_y = 0;
+    static constexpr int default_axis_yaw = 6;
+    static constexpr int default_axis_pitch = 7;
     static constexpr double default_scale_pan_x = 0.2;
     static constexpr double default_scale_pan_y = 0.2;
     static constexpr double default_scale_car_x = 0.2;
-    static constexpr double default_scale_car_y = 15 * M_PI / 180;
+    static constexpr double default_scale_car_y = 25 * M_PI / 180;
 
     ros::NodeHandle nh_;
 
@@ -211,6 +217,17 @@ private:
         return joy.axes[axis_index] < -0.9;
     }
 };
+
+constexpr int TeleopJoy::default_axis_pan_x;
+constexpr int TeleopJoy::default_axis_pan_y;
+constexpr int TeleopJoy::default_axis_car_x;
+constexpr int TeleopJoy::default_axis_car_y;
+constexpr int TeleopJoy::default_axis_yaw;
+constexpr int TeleopJoy::default_axis_pitch;
+constexpr double TeleopJoy::default_scale_pan_x;
+constexpr double TeleopJoy::default_scale_pan_y;
+constexpr double TeleopJoy::default_scale_car_x;
+constexpr double TeleopJoy::default_scale_car_y;
 
 
 TeleopJoy::TeleopJoy() :
@@ -280,8 +297,11 @@ void TeleopJoy::publish_twist() {
 }
 
 void TeleopJoy::publish_gaze() {
-    pub_yaw.publish(button_yaw->value());
-    pub_pitch.publish(button_pitch->value());
+    std_msgs::Float64 msg;
+    msg.data = button_yaw->value();
+    pub_yaw.publish(msg);
+    msg.data = button_pitch->value();
+    pub_pitch.publish(msg);
 }
 
 }

@@ -20,3 +20,9 @@
 	path = src/realsense
 	url = git@github.com:bxwllzz/realsense
 
+[submodule "src/Kalibr"]
+	path = src/Kalibr
+	url = git@github.com:bxwllzz/kalibr.git
+[submodule "src/VI-MEAN"]
+	path = src/VI-MEAN
+	url = git@github.com:bxwllzz/VI-MEAN.git
