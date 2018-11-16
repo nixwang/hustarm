@@ -26,3 +26,7 @@
 [submodule "src/VI-MEAN"]
 	path = src/VI-MEAN
 	url = git@github.com:bxwllzz/VI-MEAN.git
+[submodule "src/vision_opencv"]
+	path = src/vision_opencv
+	url = git@github.com:bxwllzz/vision_opencv.git
+	branch = kinetic
