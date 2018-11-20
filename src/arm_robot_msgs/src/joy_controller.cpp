@@ -162,6 +162,45 @@ public:
     }
 };
 
+class AccelerationLimiter {
+private:
+    double max_acceleration_;
+    ros::Time prev_time_;
+    double prev_velocity_;
+    double target_velocity_;
+public:
+    AccelerationLimiter(double max_accel) :
+            max_acceleration_(max_accel),
+            prev_time_(ros::Time::now()),
+            prev_velocity_(0),
+            target_velocity_(0) {
+        if (max_accel <= 0) {
+            throw std::runtime_error("max_accel must > 0");
+        }
+    }
+
+    void velocity(double vel) {
+        target_velocity_ = vel;
+    }
+
+    double velocity() {
+        ros::Time now = ros::Time::now();
+        if (now > prev_time_ && prev_velocity_ != target_velocity_) {
+            double dt = now.toSec() - prev_time_.toSec();
+            double dv = target_velocity_ - prev_velocity_;
+            double max_dv = dt * max_acceleration_;
+            if (dv > 0) {
+                dv = std::min(max_dv, dv);
+            } else {
+                dv = std::max(-max_dv, dv);
+            }
+            prev_velocity_ += dv;
+        }
+        prev_time_ = now;
+        return prev_velocity_;
+    }
+};
+
 class TeleopJoy {
 protected:
     static constexpr int default_axis_pan_x = 1;
@@ -174,6 +213,8 @@ protected:
     static constexpr double default_scale_pan_y = 0.2;
     static constexpr double default_scale_car_x = 0.2;
     static constexpr double default_scale_car_y = 25 * M_PI / 180;
+    static constexpr double default_max_accel_xy = 1;
+    static constexpr double default_max_accel_w = 90 * M_PI / 180;
 
     ros::NodeHandle nh_;
 
@@ -181,6 +222,10 @@ protected:
     std::shared_ptr<JoyAxisControl> axis_pan_y;
     std::shared_ptr<JoyAxisControl> axis_car_x;
     std::shared_ptr<JoyAxisControl> axis_car_y;
+
+    std::shared_ptr<AccelerationLimiter> limiter_x;
+    std::shared_ptr<AccelerationLimiter> limiter_y;
+    std::shared_ptr<AccelerationLimiter> limiter_w;
 
     int axis_yaw = -1;
     int axis_pitch = -1;
@@ -228,6 +273,8 @@ constexpr double TeleopJoy::default_scale_pan_x;
 constexpr double TeleopJoy::default_scale_pan_y;
 constexpr double TeleopJoy::default_scale_car_x;
 constexpr double TeleopJoy::default_scale_car_y;
+constexpr double TeleopJoy::default_max_accel_xy;
+constexpr double TeleopJoy::default_max_accel_w;
 
 
 TeleopJoy::TeleopJoy() :
@@ -245,6 +292,9 @@ TeleopJoy::TeleopJoy() :
     axis_pan_y->scale(nh_.param("scale_pan_y", default_scale_pan_y));
     axis_car_x->scale(nh_.param("scale_car_x", default_scale_car_x));
     axis_car_y->scale(nh_.param("scale_car_y", default_scale_car_y));
+    limiter_x = std::make_shared<AccelerationLimiter>(nh_.param("max_accel_xy", default_max_accel_xy));
+    limiter_y = std::make_shared<AccelerationLimiter>(nh_.param("max_accel_xy", default_max_accel_xy));
+    limiter_w = std::make_shared<AccelerationLimiter>(nh_.param("max_accel_w", default_max_accel_w));
 
     axis_yaw = nh_.param("axis_yaw", default_axis_yaw);
     axis_pitch = nh_.param("axis_pitch", default_axis_pitch);
@@ -289,9 +339,12 @@ void TeleopJoy::timer_pub_callback(const ros::TimerEvent &event) {
 }
 
 void TeleopJoy::publish_twist() {
-    twist_.linear.x = axis_pan_x->output() + axis_car_x->output();
-    twist_.linear.y = axis_pan_y->output();
-    twist_.angular.z = axis_car_y->output();
+    limiter_x->velocity(axis_pan_x->output() + axis_car_x->output());
+    limiter_y->velocity(axis_pan_y->output());
+    limiter_w->velocity(axis_car_y->output());
+    twist_.linear.x = limiter_x->velocity();
+    twist_.linear.y = limiter_y->velocity();
+    twist_.angular.z = limiter_w->velocity();
 
     pub_twist_.publish(twist_);
 }
